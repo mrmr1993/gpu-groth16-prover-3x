@@ -135,7 +135,7 @@ void prove_aux(
     //ec_reduce_straus<ECp, C, R>(sA, out_A, A_mults, w, m + 1);
     ec_reduce_straus<ECp, C, R>(sB1, out_B1, B1_mults, w, m + 1);
     ec_reduce_straus<ECpe, C, 2*R>(sB2, out_B2, B2_mults, w, m + 1);
-    ec_reduce_straus<ECp, C, R>(sL, out_L, L_mults, w + (primary_input_size + 1) * ELT_LIMBS, m - 1);
+    ec_reduce_straus<ECp, C, R>(sL, out_L, L_mults, w + (primary_input_size + 1) * ELT_LIMBS, m - primary_input_size);
     print_time(t, "gpu launch");
 
     (*evaluation_At) = B::multiexp_G1(B::input_w(inputs), B::params_A(params), m + 1);
