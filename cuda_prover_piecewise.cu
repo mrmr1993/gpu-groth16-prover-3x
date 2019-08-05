@@ -7,6 +7,8 @@
 
 #include "multiexp/reduce.cu"
 
+#include "libsnark/zk_proof_systems/ppzksnark/r1cs_se_ppzksnark/r1cs_se_ppzksnark.hpp"
+
 // This is where all the FFTs happen
 
 // template over the bundle of types and functions.
@@ -169,6 +171,126 @@ void prove_aux(
     *final_C = B::G1_add(*evaluation_Ht, *Lt1_plus_scaled_Bt1);
 
     print_time(t, "cpu 2");
+}
+
+template <const int R, const int C, typename B>
+void prove(
+        typename B::G1 **A_out,
+        typename B::G2 **B_out,
+        typename B::G1 **C_out,
+        size_t primary_input_size,
+        size_t d,
+        size_t m,
+        const var *w,
+        // const var *A_mults,
+        const var *B1_mults,
+        const var *B2_mults,
+        const var *L_mults,
+        typename B::groth16_params *params,
+        typename B::groth16_input *inputs)
+{
+    typedef typename ec_type<B>::ECpe ECpe;
+
+    size_t space = ((m + 1) + R - 1) / R;
+
+    //auto out_A = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+
+    auto out_B1 = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+
+    auto out_B2 = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+
+    auto out_L = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+
+    cudaStream_t //sA,
+                 sB1, sB2, sL;
+
+    typename B::vector_Fr *coefficients_for_H = NULL;
+    typename B::vector_G1 *H = NULL;
+
+    typename B::G1 *evaluation_Bt1 = NULL,
+                   *evaluation_Ht = NULL,
+                   *evaluation_Lt = NULL,
+                   *scaled_Bt1 = NULL,
+                   *Lt1_plus_scaled_Bt1 = NULL;
+
+    prove_aux<R, C, B>(
+        primary_input_size,
+        d,
+        m,
+        w,
+        now(),
+        // A_mults,
+        // out_A.get(),
+        B1_mults,
+        out_B1.get(),
+        B2_mults,
+        out_B2.get(),
+        L_mults,
+        out_L.get(),
+        params,
+        inputs,
+        &coefficients_for_H,
+        &H,
+        A_out,
+        &evaluation_Bt1,
+        B_out,
+        &evaluation_Ht,
+        &evaluation_Lt,
+        &scaled_Bt1,
+        &Lt1_plus_scaled_Bt1,
+        C_out,
+        //sA,
+        sB1,
+        sB2,
+        sL);
+
+    //cudaStreamDestroy(sA);
+    cudaStreamDestroy(sB1);
+    cudaStreamDestroy(sB2);
+    cudaStreamDestroy(sL);
+
+    B::delete_vector_G1(H);
+
+    B::delete_G1(evaluation_Bt1);
+    B::delete_G1(evaluation_Ht);
+    B::delete_G1(evaluation_Lt);
+    B::delete_G1(scaled_Bt1);
+    B::delete_G1(Lt1_plus_scaled_Bt1);
+    B::delete_vector_Fr(coefficients_for_H);
+
+    //B::groth16_output_write(evaluation_At, evaluation_Bt2, final_C, output_path);
+}
+
+template <const int R, const int C, typename B, typename T>
+libsnark::r1cs_se_ppzksnark_proof<T> *make_proof(
+        size_t primary_input_size,
+        size_t d,
+        size_t m,
+        const var *w,
+        // const var *A_mults,
+        const var *B1_mults,
+        const var *B2_mults,
+        const var *L_mults,
+        typename B::groth16_params *params,
+        typename B::groth16_input *inputs)
+{
+    typename B::G1 **A_out, **C_out;
+    typename B::G2 **B_out;
+    prove<R, C, B>(
+        A_out,
+        B_out,
+        C_out,
+        primary_input_size,
+        d,
+        m,
+        w,
+        // A_mults,
+        B1_mults,
+        B2_mults,
+        L_mults,
+        params,
+        inputs);
+    return new libsnark::r1cs_se_ppzksnark_proof<T>(A_out, B_out, C_out);
 }
 
 template <typename B>
