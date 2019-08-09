@@ -47,8 +47,8 @@ The preprocessed filenames are currently hardcoded to `MNT4753_preprocessed` and
 ``` bash
 ./main MNT4753 compute MNT4753-parameters MNT4753-input MNT4753-output
 ./main MNT6753 compute MNT6753-parameters MNT6753-input MNT6753-output
-./cuda_prover_piecewise MNT4753 compute MNT4753-parameters MNT4753-input MNT4753-output_cuda
-./cuda_prover_piecewise MNT6753 compute MNT6753-parameters MNT6753-input MNT6753-output_cuda
+./cuda_prover_main MNT4753 compute MNT4753-parameters MNT4753-input MNT4753-output_cuda
+./cuda_prover_main MNT6753 compute MNT6753-parameters MNT6753-input MNT6753-output_cuda
 ```
 
 ### Check results
