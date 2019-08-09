@@ -261,8 +261,10 @@ void prove(
     //B::groth16_output_write(evaluation_At, evaluation_Bt2, final_C, output_path);
 }
 
-template <const int R, const int C, typename B, typename T>
-libsnark::r1cs_se_ppzksnark_proof<T> *make_proof(
+void mnt4753_cuda_prove(
+        typename mnt4753_libsnark::G1 **A_out,
+        typename mnt4753_libsnark::G2 **B_out,
+        typename mnt4753_libsnark::G1 **C_out,
         size_t primary_input_size,
         size_t d,
         size_t m,
@@ -271,26 +273,56 @@ libsnark::r1cs_se_ppzksnark_proof<T> *make_proof(
         const var *B1_mults,
         const var *B2_mults,
         const var *L_mults,
-        typename B::groth16_params *params,
-        typename B::groth16_input *inputs)
-{
-    typename B::G1 **A_out, **C_out;
-    typename B::G2 **B_out;
-    prove<R, C, B>(
-        A_out,
-        B_out,
-        C_out,
-        primary_input_size,
-        d,
-        m,
-        w,
-        // A_mults,
-        B1_mults,
-        B2_mults,
-        L_mults,
-        params,
-        inputs);
-    return new libsnark::r1cs_se_ppzksnark_proof<T>(A_out, B_out, C_out);
+        typename mnt4753_libsnark::groth16_params *params,
+        typename mnt4753_libsnark::groth16_input *inputs) {
+  static constexpr int R = 32;
+  static constexpr int C = 5;
+  prove<R, C, mnt4753_libsnark>(
+    A_out,
+    B_out,
+    C_out,
+    primary_input_size,
+    d,
+    m,
+    w,
+    // A_mults,
+    B1_mults,
+    B2_mults,
+    L_mults,
+    params,
+    inputs);
+}
+
+void mnt6753_cuda_prove(
+        typename mnt6753_libsnark::G1 **A_out,
+        typename mnt6753_libsnark::G2 **B_out,
+        typename mnt6753_libsnark::G1 **C_out,
+        size_t primary_input_size,
+        size_t d,
+        size_t m,
+        const var *w,
+        // const var *A_mults,
+        const var *B1_mults,
+        const var *B2_mults,
+        const var *L_mults,
+        typename mnt6753_libsnark::groth16_params *params,
+        typename mnt6753_libsnark::groth16_input *inputs) {
+  static constexpr int R = 32;
+  static constexpr int C = 5;
+  prove<R, C, mnt6753_libsnark>(
+    A_out,
+    B_out,
+    C_out,
+    primary_input_size,
+    d,
+    m,
+    w,
+    // A_mults,
+    B1_mults,
+    B2_mults,
+    L_mults,
+    params,
+    inputs);
 }
 
 template <typename B>
