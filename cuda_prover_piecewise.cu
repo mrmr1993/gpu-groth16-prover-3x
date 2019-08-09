@@ -325,6 +325,22 @@ void mnt6753_cuda_prove(
     inputs);
 }
 
+var_ptr mnt4753_cuda_load_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt4753_libsnark>::ECp>(n, inputs);
+}
+
+var_ptr mnt4753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt4753_libsnark>::ECpe>(n, inputs);
+}
+
+var_ptr mnt6753_cuda_load_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt6753_libsnark>::ECp>(n, inputs);
+}
+
+var_ptr mnt6753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt6753_libsnark>::ECpe>(n, inputs);
+}
+
 template <typename B>
 void run_prover(
         const char *params_path,

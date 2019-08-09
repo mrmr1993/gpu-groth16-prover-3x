@@ -255,6 +255,22 @@ add_subdirectory(depends)
 add_subdirectory(libsnark)
 add_subdirectory(cuda-fixnum)
 
+add_library (
+    caml_cuda_prover
+
+    cuda_prover_caml.cu
+    caml_cuda_prover.cpp
+)
+
+target_include_directories(
+  caml_cuda_prover
+
+  PUBLIC
+  ${DEPENDS_DIR}/libff
+  ${DEPENDS_DIR}/libfqfft
+  libsnark/prover_reference_include
+)
+
 add_executable (
     cuda_prover_main
     EXCLUDE_FROM_ALL
@@ -262,3 +278,4 @@ add_executable (
     cuda_prover_main.cu
 )
 target_link_libraries(cuda_prover_main cuda_main prover_reference_functions)
+target_link_libraries(caml_cuda_prover cuda_main prover_reference_functions)
