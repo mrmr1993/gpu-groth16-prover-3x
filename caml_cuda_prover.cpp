@@ -1,8 +1,10 @@
 #include "cuda_prover_piecewise.hpp"
 
+#include "libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/r1cs_gg_ppzksnark.hpp"
+
 extern "C" {
 
-libsnark::r1cs_se_ppzksnark_proof<T> *mnt4753_make_proof(
+libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         size_t primary_input_size,
         size_t d,
         size_t m,
@@ -14,12 +16,12 @@ libsnark::r1cs_se_ppzksnark_proof<T> *mnt4753_make_proof(
         mnt4753_libsnark::groth16_params *params,
         mnt4753_libsnark::groth16_input *inputs)
 {
-    mnt4753_libsnark::G1 **A_out, **C_out;
-    mnt4753_libsnark::G2 **B_out;
-    prove<R, C, B>(
-        A_out,
-        B_out,
-        C_out,
+    mnt4753_libsnark::G1 *A_out = NULL, *C_out = NULL;
+    mnt4753_libsnark::G2 *B_out = NULL;
+    mnt4753_cuda_prove(
+        &A_out,
+        &B_out,
+        &C_out,
         primary_input_size,
         d,
         m,
@@ -30,10 +32,18 @@ libsnark::r1cs_se_ppzksnark_proof<T> *mnt4753_make_proof(
         L_mults,
         params,
         inputs);
-    return new libsnark::r1cs_se_ppzksnark_proof<T>(A_out, B_out, C_out);
+
+    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *proof =
+      new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp>();
+
+    proof->g_A = A_out->data;
+    proof->g_B = B_out->data;
+    proof->g_C = C_out->data;
+
+    return proof;
 }
 
-libsnark::r1cs_se_ppzksnark_proof<T> *mnt6753_make_proof(
+libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         size_t primary_input_size,
         size_t d,
         size_t m,
@@ -45,12 +55,12 @@ libsnark::r1cs_se_ppzksnark_proof<T> *mnt6753_make_proof(
         mnt6753_libsnark::groth16_params *params,
         mnt6753_libsnark::groth16_input *inputs)
 {
-    mnt6753_libsnark::G1 **A_out, **C_out;
-    mnt6753_libsnark::G2 **B_out;
-    prove<R, C, B>(
-        A_out,
-        B_out,
-        C_out,
+    mnt6753_libsnark::G1 *A_out = NULL, *C_out = NULL;
+    mnt6753_libsnark::G2 *B_out = NULL;
+    mnt6753_cuda_prove(
+        &A_out,
+        &B_out,
+        &C_out,
         primary_input_size,
         d,
         m,
@@ -61,7 +71,15 @@ libsnark::r1cs_se_ppzksnark_proof<T> *mnt6753_make_proof(
         L_mults,
         params,
         inputs);
-    return new libsnark::r1cs_se_ppzksnark_proof<T>(A_out, B_out, C_out);
+
+    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *proof =
+      new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp>();
+
+    proof->g_A = A_out->data;
+    proof->g_B = B_out->data;
+    proof->g_C = C_out->data;
+
+    return proof;
 }
 
 }

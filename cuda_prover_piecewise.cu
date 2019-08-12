@@ -7,8 +7,6 @@
 
 #include "multiexp/reduce.cu"
 
-#include "libsnark/zk_proof_systems/ppzksnark/r1cs_se_ppzksnark/r1cs_se_ppzksnark.hpp"
-
 // This is where all the FFTs happen
 
 // template over the bundle of types and functions.

@@ -1,0 +1,19 @@
+opam-version: "1.2"
+name: "groth16_gpu_prover"
+maintainer: "opensource@o1labs.org"
+authors: ["O(1) Labs, LLC <opensource@o1labs.org>"]
+homepage: "https://github.com/o1labs/groth16_gpu_prover"
+bug-reports: "https://github.com/o1labs/groth16_gpu_prover/issues"
+dev-repo: "git+https://github.com/o1labs/groth16_gpu_prover.git"
+license: "MIT"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "snarky"
+]
+available: [ ocaml-version >= "4.07.0" ]
+descr: "
+An OCaml interface to the Groth16 zkSNARK GPU prover
+"
+

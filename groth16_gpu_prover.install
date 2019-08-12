@@ -1,0 +1,17 @@
+lib: [
+  "_build/install/default/lib/groth16_gpu_prover/META" {"META"}
+  "_build/install/default/lib/groth16_gpu_prover/dune-package" {"dune-package"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.a" {"groth16_gpu_prover.a"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.cmi" {"groth16_gpu_prover.cmi"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.cmt" {"groth16_gpu_prover.cmt"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.cmx" {"groth16_gpu_prover.cmx"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.cmxa" {"groth16_gpu_prover.cmxa"}
+  "_build/install/default/lib/groth16_gpu_prover/groth16_gpu_prover.ml" {"groth16_gpu_prover.ml"}
+  "_build/install/default/lib/groth16_gpu_prover/libgroth16_gpu_prover_stubs.a" {"libgroth16_gpu_prover_stubs.a"}
+  "_build/install/default/lib/groth16_gpu_prover/opam" {"opam"}
+]
+doc: [
+  "_build/install/default/doc/groth16_gpu_prover/LICENSE"
+  "_build/install/default/doc/groth16_gpu_prover/README-libsnark.md"
+  "_build/install/default/doc/groth16_gpu_prover/README.md"
+]

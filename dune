@@ -1,0 +1,27 @@
+(data_only_dirs cuda-fixnum cuda_prover_piecewise depends libsnark multiexp)
+
+(library
+ (name groth16_gpu_prover)
+ (public_name groth16_gpu_prover)
+ (libraries snarky)
+ (no_dynlink)
+ (modes native)
+ (self_build_stubs_archive (groth16_gpu_prover)))
+
+(rule
+ (targets libgroth16_gpu_prover_stubs.a)
+ (deps
+  (source_tree depends)
+  (source_tree cuda_prover_piecewise)
+  (source_tree cuda-fixnum)
+  (source_tree libsnark)
+  (source_tree multiexp)
+  CMakeLists.txt cuda_prover_piecewise.cu cuda_prover_piecewise.hpp caml_cuda_prover.cpp)
+ (action (bash "
+ mkdir -p build
+ pushd build
+  cmake -DMULTICORE=ON -DUSE_PT_COMPRESSION=OFF ..
+  make -j$(nproc) caml_cuda_prover
+ popd
+ cp build/libcaml_cuda_prover.a libgroth16_gpu_prover_stubs.a
+")))

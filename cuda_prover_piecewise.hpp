@@ -35,6 +35,9 @@ void mnt6753_cuda_prove(
         mnt6753_libsnark::groth16_params *params,
         mnt6753_libsnark::groth16_input *inputs);
 
+struct CudaFree;
+typedef std::unique_ptr<var, CudaFree> var_ptr;
+
 var_ptr mnt4753_cuda_load_points_affine(size_t n, FILE *inputs);
 
 var_ptr mnt4753_cuda_load_extension_points_affine(size_t n, FILE *inputs);

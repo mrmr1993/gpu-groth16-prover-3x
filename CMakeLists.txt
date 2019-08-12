@@ -258,7 +258,7 @@ add_subdirectory(cuda-fixnum)
 add_library (
     caml_cuda_prover
 
-    cuda_prover_caml.cu
+    cuda_prover_piecewise.cu
     caml_cuda_prover.cpp
 )
 
