@@ -110,12 +110,6 @@ G2<ppT> read_g2(FILE* input) {
   return G2<ppT>(x, y, Fqe<ppT>::one());
 }
 
-size_t read_size_t(FILE* input) {
-  size_t n;
-  fread((void *) &n, sizeof(size_t), 1, input);
-  return n;
-}
+size_t read_size_t(FILE* input);
 
-void write_size_t(FILE* output, size_t n) {
-  fwrite((void *) &n, sizeof(size_t), 1, output);
-}
+void write_size_t(FILE* output, size_t n);

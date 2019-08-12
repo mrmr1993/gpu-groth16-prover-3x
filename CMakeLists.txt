@@ -258,6 +258,8 @@ add_subdirectory(cuda-fixnum)
 add_library (
     caml_cuda_prover
 
+    libsnark/serialization.cpp
+    libsnark/prover_reference_functions.cpp
     cuda_prover_piecewise.cu
     caml_cuda_prover.cpp
 )
@@ -275,7 +277,7 @@ add_executable (
     cuda_prover_main
     EXCLUDE_FROM_ALL
 
+    libsnark/serialization.cpp
     cuda_prover_main.cu
 )
 target_link_libraries(cuda_prover_main cuda_main prover_reference_functions)
-target_link_libraries(caml_cuda_prover cuda_main prover_reference_functions)

@@ -52,6 +52,7 @@ add_library(
   relations/ram_computations/memory/ra_memory.cpp
   relations/ram_computations/rams/fooram/fooram_aux.cpp
   relations/ram_computations/rams/tinyram/tinyram_aux.cpp
+  serialization.cpp
 )
 target_link_libraries(
   snark

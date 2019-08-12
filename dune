@@ -1,11 +1,19 @@
 (data_only_dirs cuda-fixnum cuda_prover_piecewise depends libsnark multiexp)
 
+(executable
+ (name test)
+ (libraries groth16_gpu_prover snarky)
+ (modes native)
+ (modules test))
+
 (library
  (name groth16_gpu_prover)
  (public_name groth16_gpu_prover)
  (libraries snarky)
  (no_dynlink)
+ (modules (:standard \ test))
  (modes native)
+ (c_library_flags :standard -lgroth16_gpu_prover_stubs -L/usr/local/cuda/lib64 -lcudart -lomp -lstdc++)
  (self_build_stubs_archive (groth16_gpu_prover)))
 
 (rule
