@@ -323,20 +323,24 @@ void mnt6753_cuda_prove(
     inputs);
 }
 
-var_ptr mnt4753_cuda_load_points_affine(size_t n, FILE *inputs) {
-  return load_points_affine<ec_type<mnt4753_libsnark>::ECp>(n, inputs);
+extern "C" {
+
+var *mnt4753_cuda_load_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt4753_libsnark>::ECp>(n, inputs).release();
 }
 
-var_ptr mnt4753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
-  return load_points_affine<ec_type<mnt4753_libsnark>::ECpe>(n, inputs);
+var *mnt4753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt4753_libsnark>::ECpe>(n, inputs).release();
 }
 
-var_ptr mnt6753_cuda_load_points_affine(size_t n, FILE *inputs) {
-  return load_points_affine<ec_type<mnt6753_libsnark>::ECp>(n, inputs);
+var *mnt6753_cuda_load_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt6753_libsnark>::ECp>(n, inputs).release();
 }
 
-var_ptr mnt6753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
-  return load_points_affine<ec_type<mnt6753_libsnark>::ECpe>(n, inputs);
+var *mnt6753_cuda_load_extension_points_affine(size_t n, FILE *inputs) {
+  return load_points_affine<ec_type<mnt6753_libsnark>::ECpe>(n, inputs).release();
+}
+
 }
 
 template <typename B>

@@ -18,7 +18,7 @@
 using namespace libsnark;
 using namespace libff;
 
-const bool debug = false;
+bool debug = true;
 
 template<typename ppT>
 int generate_paramaters(
@@ -108,6 +108,7 @@ int generate_paramaters(
     fclose(input);
 
     if (debug) {
+      debug = false;
       std::ofstream vk_debug;
       vk_debug.open("verification-key.debug");
       vk_debug << keypair.vk;
