@@ -25,7 +25,7 @@ let () =
   let pkstring = Core_kernel.In_channel.read_all "proving-key.debug" in
   let proving_key = Snarky.Libsnark.Mnt4753.Default.Proving_key.of_string pkstring in
   let proof =
-    Groth16_gpu_prover.Mnt4753.make_groth16_proof Unsigned.Size_t.one ~w
+    Groth16_gpu_prover.Mnt4753.make_groth16_proof ~w
       ~b1_mults ~b2_mults ~l_mults inputs proving_key
   in
   let keystring = Core_kernel.In_channel.read_all "verification-key.debug" in

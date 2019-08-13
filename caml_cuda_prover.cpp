@@ -5,7 +5,6 @@
 extern "C" {
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
-        size_t primary_input_size,
         const var *w,
         // const var *A_mults,
         const var *B1_mults,
@@ -21,7 +20,7 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         &A_out,
         &B_out,
         &C_out,
-        primary_input_size,
+        pk->constraint_system.primary_input_size,
         params.d,
         params.m,
         w,
@@ -97,7 +96,6 @@ const void *mnt4753_get_input_witness(mnt4753_libsnark::groth16_input *inputs)
 }
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
-        size_t primary_input_size,
         const var *w,
         // const var *A_mults,
         const var *B1_mults,
@@ -113,7 +111,7 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         &A_out,
         &B_out,
         &C_out,
-        primary_input_size,
+        pk->constraint_system.primary_input_size,
         params.d,
         params.m,
         w,

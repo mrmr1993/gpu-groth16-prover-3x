@@ -85,13 +85,13 @@ module Mnt4753 = struct
   let make_groth16_proof =
     let stub =
       foreign "mnt4753_cuda_make_proof"
-        ( size_t @-> ptr void @-> ptr void @-> ptr void
+        ( ptr void @-> ptr void @-> ptr void
         @-> ptr void @-> Inputs.typ
         @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
-    fun inputs_len ~w ~b1_mults ~b2_mults ~l_mults params inputs ->
-      stub inputs_len w b1_mults b2_mults l_mults params inputs
+    fun ~w ~b1_mults ~b2_mults ~l_mults inputs pk ->
+      stub w b1_mults b2_mults l_mults inputs pk
 end
 
 module Mnt6753 = struct
