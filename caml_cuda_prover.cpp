@@ -2,6 +2,47 @@
 
 #include "libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/r1cs_gg_ppzksnark.hpp"
 
+template<typename ppT>
+void copy_fq(void** output, libff::Fq<ppT> x) {
+  std::memcpy(*output, (void *) x.mont_repr.data, num_limbs * sizeof(mp_size_t));
+  *output += num_limbs * sizeof(mp_size_t);
+}
+
+template<typename ppT>
+void copy_fqe(void** output, libff::Fqe<ppT> x) {
+  std::vector<Fq<ppT>> v = x.all_base_field_elements();
+  size_t deg = Fqe<ppT>::extension_degree();
+  for (size_t i = 0; i < deg; ++i) {
+    copy_fq(output, v[i]);
+  }
+}
+
+template<typename ppT>
+void copy_g1(void** output, libff::G1<ppT> g) {
+  if (g.is_zero())  {
+    copy_fq<ppT>(output, Fq<ppT>::zero());
+    copy_fq<ppT>(output, Fq<ppT>::zero());
+    return;
+  }
+
+  g.to_affine_coordinates();
+  copy_fq<ppT>(output, g.X());
+  copy_fq<ppT>(output, g.Y());
+}
+
+template<typename ppT>
+void copy_g2(void** output, libff::G2<ppT> g) {
+  if (g.is_zero())  {
+    copy_fqe<ppT>(output, Fqe<ppT>::zero());
+    copy_fqe<ppT>(output, Fqe<ppT>::zero());
+    return;
+  }
+
+  g.to_affine_coordinates();
+  copy_fqe<ppT>(output, g.X());
+  copy_fqe<ppT>(output, g.Y());
+}
+
 extern "C" {
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
@@ -119,6 +160,10 @@ std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_B1(
     for (size_t i = 0; i < pk->B_query.size(); i++) {
         B1.emplace_back(pk->B_query[i].h);
     }
+    /* Pad to the size of A_query. */
+    for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
+        B1.emplace_back(libff::G1<libff::mnt4753_pp>::zero());
+    }
     generate_multiples<libff::G1<libff::mnt4753_pp>>(C, B1, ret);
     return ret;
 }
@@ -131,6 +176,10 @@ std::vector<libff::G2<libff::mnt4753_pp>> *mnt4753_preprocess_B2(
     std::vector<libff::G2<libff::mnt4753_pp>> B2;
     for (size_t i = 0; i < pk->B_query.size(); i++) {
         B2.emplace_back(pk->B_query[i].g);
+    }
+    /* Pad to the size of A_query. */
+    for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
+        B2.emplace_back(libff::G2<libff::mnt4753_pp>::zero());
     }
     generate_multiples<libff::G2<libff::mnt4753_pp>>(C, B2, ret);
     return ret;

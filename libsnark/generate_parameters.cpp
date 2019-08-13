@@ -67,10 +67,12 @@ int generate_paramaters(
       write_g1<ppT>(params, keypair.pk.A_query[i]);
     }
 
+    // Note: This appears to read junk from beyond the end of the vector..
     for (size_t i = 0; i <= m; ++i) {
       write_g1<ppT>(params, keypair.pk.B_query[i].h);
     }
 
+    // Note: This appears to read junk from beyond the end of the vector..
     for (size_t i = 0; i <= m; ++i) {
       write_g2<ppT>(params, keypair.pk.B_query[i].g);
     }

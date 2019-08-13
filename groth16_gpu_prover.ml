@@ -82,6 +82,33 @@ module Mnt4753 = struct
         (typ @-> returning Libsnark.Mnt4753.Field.Vector.typ )
   end
 
+  module Preprocess = struct
+    let a =
+      foreign "mnt4753_preprocess_A"
+        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+
+    let b1 =
+      foreign "mnt4753_preprocess_B1"
+        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+
+    let b2 =
+      foreign "mnt4753_preprocess_B2"
+        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+        @-> returning Libsnark.Mnt4753.G2.Vector.typ)
+
+    let l =
+      foreign "mnt4753_preprocess_L"
+        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+
+    let h =
+      foreign "mnt4753_preprocess_H"
+        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+  end
+
   let make_groth16_proof =
     let stub =
       foreign "mnt4753_cuda_make_proof"
