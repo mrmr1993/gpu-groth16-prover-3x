@@ -87,6 +87,7 @@ module Mnt4753 = struct
       foreign "mnt4753_cuda_make_proof"
         ( size_t @-> ptr void @-> ptr void @-> ptr void
         @-> ptr void @-> Params.typ @-> Inputs.typ
+        @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
     fun inputs_len ~w ~b1_mults ~b2_mults ~l_mults params inputs ->

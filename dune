@@ -24,7 +24,9 @@
   (source_tree cuda-fixnum)
   (source_tree libsnark)
   (source_tree multiexp)
-  CMakeLists.txt cuda_prover_piecewise.cu cuda_prover_piecewise.hpp caml_cuda_prover.cpp)
+  CMakeLists.txt cuda_prover_piecewise.cu cuda_prover_piecewise.hpp caml_cuda_prover.cpp
+  cuda_prover_main.cu ; This is needed to appease cmake
+  )
  (action (bash "
  mkdir -p build
  pushd build

@@ -12,7 +12,8 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         const var *B2_mults,
         const var *L_mults,
         mnt4753_libsnark::groth16_params *params,
-        mnt4753_libsnark::groth16_input *inputs)
+        mnt4753_libsnark::groth16_input *inputs,
+        libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
 {
     mnt4753_libsnark::G1 *A_out = NULL, *C_out = NULL;
     mnt4753_libsnark::G2 *B_out = NULL;
@@ -31,12 +32,20 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         params,
         inputs);
 
-    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *proof =
-      new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp>();
+    const libff::Fr<libff::mnt4753_pp> r = inputs->r;
 
-    proof->g_A = A_out->data;
-    proof->g_B = B_out->data;
-    proof->g_C = C_out->data;
+    const libff::Fr<libff::mnt4753_pp> s = libff::Fr<libff::mnt4753_pp>::random_element();
+
+    /* A = alpha + sum_i(a_i*A_i(t)) + r*delta */
+    libff::G1<libff::mnt4753_pp> g1_A = pk->alpha_g1 + A_out->data + r * pk->delta_g1;
+
+    /* B = beta + sum_i(a_i*B_i(t)) + s*delta */
+    libff::G2<libff::mnt4753_pp> g2_B = pk->beta_g2 + B_out->data + s * pk->delta_g2;
+
+    /* C = sum_i(a_i*((beta*A_i(t) + alpha*B_i(t) + C_i(t)) + H(t)*Z(t))/delta) + A*s + r*b - r*s*delta */
+    libff::G1<libff::mnt4753_pp> g1_C = C_out->data + s * g1_A + r * pk->beta_g1;
+
+    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *proof = new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp>(std::move(g1_A), std::move(g2_B), std::move(g1_C));
 
     return proof;
 }
@@ -95,7 +104,8 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         const var *B2_mults,
         const var *L_mults,
         mnt6753_libsnark::groth16_params *params,
-        mnt6753_libsnark::groth16_input *inputs)
+        mnt6753_libsnark::groth16_input *inputs,
+        libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
 {
     mnt6753_libsnark::G1 *A_out = NULL, *C_out = NULL;
     mnt6753_libsnark::G2 *B_out = NULL;
@@ -114,12 +124,20 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         params,
         inputs);
 
-    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *proof =
-      new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp>();
+    const libff::Fr<libff::mnt6753_pp> r = inputs->r;
 
-    proof->g_A = A_out->data;
-    proof->g_B = B_out->data;
-    proof->g_C = C_out->data;
+    const libff::Fr<libff::mnt6753_pp> s = libff::Fr<libff::mnt6753_pp>::random_element();
+
+    /* A = alpha + sum_i(a_i*A_i(t)) + r*delta */
+    libff::G1<libff::mnt6753_pp> g1_A = pk->alpha_g1 + A_out->data + r * pk->delta_g1;
+
+    /* B = beta + sum_i(a_i*B_i(t)) + s*delta */
+    libff::G2<libff::mnt6753_pp> g2_B = pk->beta_g2 + B_out->data + s * pk->delta_g2;
+
+    /* C = sum_i(a_i*((beta*A_i(t) + alpha*B_i(t) + C_i(t)) + H(t)*Z(t))/delta) + A*s + r*b - r*s*delta */
+    libff::G1<libff::mnt6753_pp> g1_C = C_out->data + s * g1_A + r * pk->beta_g1;
+
+    libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *proof = new libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp>(std::move(g1_A), std::move(g2_B), std::move(g1_C));
 
     return proof;
 }
