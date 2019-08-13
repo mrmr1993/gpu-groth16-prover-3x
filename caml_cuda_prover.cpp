@@ -101,6 +101,59 @@ const void *mnt4753_get_input_witness(mnt4753_libsnark::groth16_input *inputs)
     return inputs->w.get();
 }
 
+std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_A(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt4753_pp>> *ret = new std::vector<libff::G1<libff::mnt4753_pp>>();
+    generate_multiples<libff::G1<libff::mnt4753_pp>>(C, pk->A_query, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_B1(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt4753_pp>> *ret = new std::vector<libff::G1<libff::mnt4753_pp>>();
+    std::vector<libff::G1<libff::mnt4753_pp>> B1;
+    for (size_t i = 0; i < pk->B_query.size(); i++) {
+        B1.emplace_back(pk->B_query[i].h);
+    }
+    generate_multiples<libff::G1<libff::mnt4753_pp>>(C, B1, ret);
+    return ret;
+}
+
+std::vector<libff::G2<libff::mnt4753_pp>> *mnt4753_preprocess_B2(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
+{
+    std::vector<libff::G2<libff::mnt4753_pp>> *ret = new std::vector<libff::G2<libff::mnt4753_pp>>();
+    std::vector<libff::G2<libff::mnt4753_pp>> B2;
+    for (size_t i = 0; i < pk->B_query.size(); i++) {
+        B2.emplace_back(pk->B_query[i].g);
+    }
+    generate_multiples<libff::G2<libff::mnt4753_pp>>(C, B2, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_L(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt4753_pp>> *ret = new std::vector<libff::G1<libff::mnt4753_pp>>();
+    generate_multiples<libff::G1<libff::mnt4753_pp>>(C, pk->L_query, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_H(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt4753_pp>> *ret = new std::vector<libff::G1<libff::mnt4753_pp>>();
+    generate_multiples<libff::G1<libff::mnt4753_pp>>(C, pk->H_query, ret);
+    return ret;
+}
+
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         const var *w,
         // const var *A_mults,
@@ -198,4 +251,57 @@ var *mnt6753_load_scalars(const size_t m, const char *filename)
 const void *mnt6753_get_input_witness(mnt6753_libsnark::groth16_input *inputs)
 {
     return inputs->w.get();
+}
+
+std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_A(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt6753_pp>> *ret = new std::vector<libff::G1<libff::mnt6753_pp>>();
+    generate_multiples<libff::G1<libff::mnt6753_pp>>(C, pk->A_query, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_B1(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt6753_pp>> *ret = new std::vector<libff::G1<libff::mnt6753_pp>>();
+    std::vector<libff::G1<libff::mnt6753_pp>> B1;
+    for (size_t i = 0; i < pk->B_query.size(); i++) {
+        B1.emplace_back(pk->B_query[i].h);
+    }
+    generate_multiples<libff::G1<libff::mnt6753_pp>>(C, B1, ret);
+    return ret;
+}
+
+std::vector<libff::G2<libff::mnt6753_pp>> *mnt6753_preprocess_B2(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
+{
+    std::vector<libff::G2<libff::mnt6753_pp>> *ret = new std::vector<libff::G2<libff::mnt6753_pp>>();
+    std::vector<libff::G2<libff::mnt6753_pp>> B2;
+    for (size_t i = 0; i < pk->B_query.size(); i++) {
+        B2.emplace_back(pk->B_query[i].g);
+    }
+    generate_multiples<libff::G2<libff::mnt6753_pp>>(C, B2, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_L(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt6753_pp>> *ret = new std::vector<libff::G1<libff::mnt6753_pp>>();
+    generate_multiples<libff::G1<libff::mnt6753_pp>>(C, pk->L_query, ret);
+    return ret;
+}
+
+std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_H(
+    int C,
+    libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
+{
+    std::vector<libff::G1<libff::mnt6753_pp>> *ret = new std::vector<libff::G1<libff::mnt6753_pp>>();
+    generate_multiples<libff::G1<libff::mnt6753_pp>>(C, pk->H_query, ret);
+    return ret;
 }
