@@ -24,18 +24,26 @@ let () =
   Groth16_gpu_prover.CFile.destroy preprocessed_file ;
   let pkstring = Core_kernel.In_channel.read_all "proving-key.debug" in
   let proving_key = Snarky.Libsnark.Mnt4753.Default.Proving_key.of_string pkstring in
-  let proof =
-    Groth16_gpu_prover.Mnt4753.make_groth16_proof ~w
-      ~b1_mults ~b2_mults ~l_mults inputs proving_key
-  in
-  let keystring = Core_kernel.In_channel.read_all "verification-key.debug" in
-  let key = Snarky.Libsnark.Mnt4753.Default.Verification_key.of_string keystring in
   let witness = Inputs.witness inputs in
-  let public_inputs =
+  let public_input =
     let open Snarky.Libsnark.Mnt4753.Field.Vector in
     let v = create () in
     emplace_back v (get witness 1) ;
     v
   in
-  assert (Snarky.Libsnark.Mnt4753.Default.Proof.verify proof key public_inputs) ;
+  let auxiliary_input =
+    let open Snarky.Libsnark.Mnt4753.Field.Vector in
+    let v = create () in
+    for i = 2 to length witness do
+      emplace_back v (get witness i) ;
+    done ;
+    v
+  in
+  let proof =
+    Groth16_gpu_prover.Mnt4753.make_groth16_proof ~w
+      ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input proving_key
+  in
+  let keystring = Core_kernel.In_channel.read_all "verification-key.debug" in
+  let key = Snarky.Libsnark.Mnt4753.Default.Verification_key.of_string keystring in
+  assert (Snarky.Libsnark.Mnt4753.Default.Proof.verify proof key public_input) ;
   ignore proof

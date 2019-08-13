@@ -86,12 +86,13 @@ module Mnt4753 = struct
     let stub =
       foreign "mnt4753_cuda_make_proof"
         ( ptr void @-> ptr void @-> ptr void
-        @-> ptr void @-> Inputs.typ
+        @-> ptr void @-> Libsnark.Mnt4753.Field.Vector.typ
+        @-> Libsnark.Mnt4753.Field.Vector.typ
         @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
-    fun ~w ~b1_mults ~b2_mults ~l_mults inputs pk ->
-      stub w b1_mults b2_mults l_mults inputs pk
+    fun ~w ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input pk ->
+      stub w b1_mults b2_mults l_mults public_input auxiliary_input pk
 end
 
 module Mnt6753 = struct

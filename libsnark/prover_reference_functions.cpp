@@ -152,6 +152,43 @@ mnt4753_libsnark::groth16_input::groth16_input(FILE *inputs, size_t d, size_t m)
   r = read_fr<mnt4753_pp>(inputs);
 }
 
+mnt4753_libsnark::groth16_input::groth16_input(
+    const std::vector<Fr<mnt4753_pp>> *public_input,
+    const std::vector<Fr<mnt4753_pp>> *auxiliary_input,
+    const r1cs_constraint_system<Fr<mnt4753_pp>> *r1cs)
+{
+  w = std::make_shared<std::vector<libff::Fr<mnt4753_pp>>>(
+      std::vector<libff::Fr<mnt4753_pp>>());
+  r = libff::Fr<libff::mnt4753_pp>::random_element();
+
+  w->emplace_back(Fr<mnt4753_pp>::one());
+  w->insert(w->end(), public_input->begin(), public_input->end());
+  w->insert(w->end(), auxiliary_input->begin(), auxiliary_input->end());
+
+  r1cs_variable_assignment<Fr<mnt4753_pp>> variable_assignment(*public_input);
+  variable_assignment.insert(variable_assignment.end(), auxiliary_input->begin(), auxiliary_input->end());
+
+  size_t d_plus_1 = r1cs->num_constraints() + r1cs->primary_input_size + 1;
+
+  ca = std::make_shared<std::vector<libff::Fr<mnt4753_pp>>>(
+      std::vector<libff::Fr<mnt4753_pp>>(d_plus_1, Fr<mnt4753_pp>::zero()));
+  cb = std::make_shared<std::vector<libff::Fr<mnt4753_pp>>>(
+      std::vector<libff::Fr<mnt4753_pp>>(d_plus_1, Fr<mnt4753_pp>::zero()));
+  cc = std::make_shared<std::vector<libff::Fr<mnt4753_pp>>>(
+      std::vector<libff::Fr<mnt4753_pp>>(d_plus_1, Fr<mnt4753_pp>::zero()));
+
+  for (size_t i = 0; i <= r1cs->primary_input_size; ++i)
+  {
+      (*ca)[i+r1cs->num_constraints()] = (i > 0 ? (variable_assignment)[i-1] : Fr<mnt4753_pp>::one());
+  }
+  for (size_t i = 0; i < r1cs->num_constraints(); ++i)
+  {
+      (*ca)[i] += r1cs->constraints[i].a.evaluate(variable_assignment);
+      (*cb)[i] += r1cs->constraints[i].b.evaluate(variable_assignment);
+      (*cc)[i] += r1cs->constraints[i].c.evaluate(variable_assignment);
+  }
+}
+
 mnt4753_libsnark::groth16_params::groth16_params(FILE *params, size_t dd, size_t mm) {
   d = read_size_t(params);
   m = read_size_t(params);
@@ -448,6 +485,43 @@ mnt6753_libsnark::groth16_input::groth16_input(FILE *inputs, size_t d, size_t m)
   }
 
   r = read_fr<mnt6753_pp>(inputs);
+}
+
+mnt6753_libsnark::groth16_input::groth16_input(
+    const std::vector<Fr<mnt6753_pp>> *public_input,
+    const std::vector<Fr<mnt6753_pp>> *auxiliary_input,
+    const r1cs_constraint_system<Fr<mnt6753_pp>> *r1cs)
+{
+  w = std::make_shared<std::vector<libff::Fr<mnt6753_pp>>>(
+      std::vector<libff::Fr<mnt6753_pp>>());
+  r = libff::Fr<libff::mnt6753_pp>::random_element();
+
+  w->emplace_back(Fr<mnt6753_pp>::one());
+  w->insert(w->end(), public_input->begin(), public_input->end());
+  w->insert(w->end(), auxiliary_input->begin(), auxiliary_input->end());
+
+  r1cs_variable_assignment<Fr<mnt6753_pp>> variable_assignment(*public_input);
+  variable_assignment.insert(variable_assignment.end(), auxiliary_input->begin(), auxiliary_input->end());
+
+  size_t d_plus_1 = r1cs->num_constraints() + r1cs->primary_input_size + 1;
+
+  ca = std::make_shared<std::vector<libff::Fr<mnt6753_pp>>>(
+      std::vector<libff::Fr<mnt6753_pp>>(d_plus_1, Fr<mnt6753_pp>::zero()));
+  cb = std::make_shared<std::vector<libff::Fr<mnt6753_pp>>>(
+      std::vector<libff::Fr<mnt6753_pp>>(d_plus_1, Fr<mnt6753_pp>::zero()));
+  cc = std::make_shared<std::vector<libff::Fr<mnt6753_pp>>>(
+      std::vector<libff::Fr<mnt6753_pp>>(d_plus_1, Fr<mnt6753_pp>::zero()));
+
+  for (size_t i = 0; i <= r1cs->primary_input_size; ++i)
+  {
+      (*ca)[i+r1cs->num_constraints()] = (i > 0 ? (variable_assignment)[i-1] : Fr<mnt6753_pp>::one());
+  }
+  for (size_t i = 0; i < r1cs->num_constraints(); ++i)
+  {
+      (*ca)[i] += r1cs->constraints[i].a.evaluate(variable_assignment);
+      (*cb)[i] += r1cs->constraints[i].b.evaluate(variable_assignment);
+      (*cc)[i] += r1cs->constraints[i].c.evaluate(variable_assignment);
+  }
 }
 
 mnt6753_libsnark::groth16_params::groth16_params(FILE *params, size_t dd, size_t mm) {

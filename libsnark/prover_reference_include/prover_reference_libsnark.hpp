@@ -25,6 +25,10 @@ public:
     Fr<mnt4753_pp> r;
 
     groth16_input(FILE *inputs, size_t d, size_t m);
+
+    groth16_input(const std::vector<Fr<mnt4753_pp>> *public_input,
+                  const std::vector<Fr<mnt4753_pp>> *auxiliary_input,
+                  const r1cs_constraint_system<Fr<mnt4753_pp>> *r1cs);
   };
 
   class groth16_params {
@@ -144,6 +148,10 @@ public:
     Fr<mnt6753_pp> r;
 
     groth16_input(FILE *inputs, size_t d, size_t m);
+
+    groth16_input(const std::vector<Fr<mnt6753_pp>> *public_input,
+                  const std::vector<Fr<mnt6753_pp>> *auxiliary_input,
+                  const r1cs_constraint_system<Fr<mnt6753_pp>> *r1cs);
   };
 
   class groth16_params {
