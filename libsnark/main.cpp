@@ -244,8 +244,8 @@ void write_g2_vec(FILE *out, const std::vector<G2<ppT>> &vec) {
         write_g2<ppT>(out, P);
 }
 
-template<typename ppT>
-void output_g1_multiples(int C, const std::vector<G1<ppT>> &vec, FILE *output) {
+template<typename G>
+void generate_multiples(int C, const std::vector<G> &vec, std::vector<G> *multiples) {
     // If vec = [P0, ..., Pn], then multiples holds an array
     //
     // [    P0, ...,     Pn,
@@ -253,10 +253,9 @@ void output_g1_multiples(int C, const std::vector<G1<ppT>> &vec, FILE *output) {
     //     3P0, ...,    3Pn,
     //          ...,
     //  2^(C-1) P0, ..., 2^(C-1) Pn]
-    std::vector<G1<ppT>> multiples;
     size_t len = vec.size();
-    multiples.resize(len * ((1U << C) - 1));
-    std::copy(vec.begin(), vec.end(), multiples.begin());
+    multiples->resize(len * ((1U << C) - 1));
+    std::copy(vec.begin(), vec.end(), multiples->begin());
 
     for (size_t i = 1; i < (1U << C) - 1; ++i) {
         size_t prev_row_offset = (i-1)*len;
@@ -265,46 +264,27 @@ void output_g1_multiples(int C, const std::vector<G1<ppT>> &vec, FILE *output) {
 #pragma omp parallel for
 #endif
         for (size_t j = 0; j < len; ++j)
-           multiples[curr_row_offset + j] = vec[j] + multiples[prev_row_offset + j];
+           (*multiples)[curr_row_offset + j] = vec[j] + (*multiples)[prev_row_offset + j];
     }
 
-    if (multiples.size() != ((1U << C) - 1)*len) {
+    if (multiples->size() != ((1U << C) - 1)*len) {
         fprintf(stderr, "Broken preprocessing table: got %zu, expected %zu\n",
-                multiples.size(), ((1U << C) - 1) * len);
+                multiples->size(), ((1U << C) - 1) * len);
         abort();
     }
+}
+
+template<typename ppT>
+void output_g1_multiples(int C, const std::vector<G1<ppT>> &vec, FILE *output) {
+    std::vector<G1<ppT>> multiples;
+    generate_multiples<G1<ppT>>(C, vec, &multiples);
     write_g1_vec<ppT>(output, multiples);
 }
 
 template<typename ppT>
 void output_g2_multiples(int C, const std::vector<G2<ppT>> &vec, FILE *output) {
-    // If vec = [P0, ..., Pn], then multiples holds an array
-    //
-    // [    P0, ...,     Pn,
-    //     2P0, ...,    2Pn,
-    //     3P0, ...,    3Pn,
-    //          ...,
-    //  2^(C-1) P0, ..., 2^(C-1) Pn]
     std::vector<G2<ppT>> multiples;
-    size_t len = vec.size();
-    multiples.resize(len * ((1U << C) - 1));
-    std::copy(vec.begin(), vec.end(), multiples.begin());
-
-    for (size_t i = 1; i < (1U << C) - 1; ++i) {
-        size_t prev_row_offset = (i-1)*len;
-        size_t curr_row_offset = i*len;
-#ifdef MULTICORE
-#pragma omp parallel for
-#endif
-        for (size_t j = 0; j < len; ++j)
-           multiples[curr_row_offset + j] = vec[j] + multiples[prev_row_offset + j];
-    }
-
-    if (multiples.size() != ((1U << C) - 1)*len) {
-        fprintf(stderr, "Broken preprocessing table: got %zu, expected %zu\n",
-                multiples.size(), ((1U << C) - 1) * len);
-        abort();
-    }
+    generate_multiples<G2<ppT>>(C, vec, &multiples);
     write_g2_vec<ppT>(output, multiples);
 }
 

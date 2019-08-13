@@ -262,3 +262,33 @@ public:
   static void groth16_output_write(G1 *A, G2 *B, G1 *C,
                                    const char *output_path);
 };
+
+template<typename G>
+void generate_multiples(int C, const std::vector<G> &vec, std::vector<G> *multiples) {
+    // If vec = [P0, ..., Pn], then multiples holds an array
+    //
+    // [    P0, ...,     Pn,
+    //     2P0, ...,    2Pn,
+    //     3P0, ...,    3Pn,
+    //          ...,
+    //  2^(C-1) P0, ..., 2^(C-1) Pn]
+    size_t len = vec.size();
+    multiples->resize(len * ((1U << C) - 1));
+    std::copy(vec.begin(), vec.end(), multiples->begin());
+
+    for (size_t i = 1; i < (1U << C) - 1; ++i) {
+        size_t prev_row_offset = (i-1)*len;
+        size_t curr_row_offset = i*len;
+#ifdef MULTICORE
+#pragma omp parallel for
+#endif
+        for (size_t j = 0; j < len; ++j)
+           (*multiples)[curr_row_offset + j] = vec[j] + (*multiples)[prev_row_offset + j];
+    }
+
+    if (multiples->size() != ((1U << C) - 1)*len) {
+        fprintf(stderr, "Broken preprocessing table: got %zu, expected %zu\n",
+                multiples->size(), ((1U << C) - 1) * len);
+        abort();
+    }
+}
