@@ -187,6 +187,26 @@ mnt4753_libsnark::groth16_params::groth16_params(FILE *params, size_t dd, size_t
   }
 }
 
+mnt4753_libsnark::groth16_params::groth16_params(libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk) {
+  d = pk->constraint_system.num_constraints() + pk->constraint_system.primary_input_size;
+  m = pk->constraint_system.num_variables();
+  A = std::make_shared<std::vector<libff::G1<mnt4753_pp>>>(
+      std::vector<libff::G1<mnt4753_pp>>(pk->A_query));
+  L = std::make_shared<std::vector<libff::G1<mnt4753_pp>>>(
+      std::vector<libff::G1<mnt4753_pp>>(pk->L_query));
+  H = std::make_shared<std::vector<libff::G1<mnt4753_pp>>>(
+      std::vector<libff::G1<mnt4753_pp>>(pk->H_query));
+
+  B1 = std::make_shared<std::vector<libff::G1<mnt4753_pp>>>(
+      std::vector<libff::G1<mnt4753_pp>>());
+  B2 = std::make_shared<std::vector<libff::G2<mnt4753_pp>>>(
+      std::vector<libff::G2<mnt4753_pp>>());
+  for (size_t i = 0; i <= m; ++i) {
+    B1->emplace_back(pk->B_query[i].h);
+    B2->emplace_back(pk->B_query[i].g);
+  }
+}
+
 void mnt4753_libsnark::init_public_params() {
   mnt4753_pp::init_public_params();
 }
@@ -462,6 +482,26 @@ mnt6753_libsnark::groth16_params::groth16_params(FILE *params, size_t dd, size_t
   }
   for (size_t i = 0; i < d; ++i) {
     H->emplace_back(read_g1<mnt6753_pp>(params));
+  }
+}
+
+mnt6753_libsnark::groth16_params::groth16_params(libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk) {
+  d = pk->constraint_system.num_constraints() + pk->constraint_system.primary_input_size;
+  m = pk->constraint_system.num_variables();
+  A = std::make_shared<std::vector<libff::G1<mnt6753_pp>>>(
+      std::vector<libff::G1<mnt6753_pp>>(pk->A_query));
+  L = std::make_shared<std::vector<libff::G1<mnt6753_pp>>>(
+      std::vector<libff::G1<mnt6753_pp>>(pk->L_query));
+  H = std::make_shared<std::vector<libff::G1<mnt6753_pp>>>(
+      std::vector<libff::G1<mnt6753_pp>>(pk->H_query));
+
+  B1 = std::make_shared<std::vector<libff::G1<mnt6753_pp>>>(
+      std::vector<libff::G1<mnt6753_pp>>());
+  B2 = std::make_shared<std::vector<libff::G2<mnt6753_pp>>>(
+      std::vector<libff::G2<mnt6753_pp>>());
+  for (size_t i = 0; i <= m; ++i) {
+    B1->emplace_back(pk->B_query[i].h);
+    B2->emplace_back(pk->B_query[i].g);
   }
 }
 

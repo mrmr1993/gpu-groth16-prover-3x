@@ -11,10 +11,10 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         const var *B1_mults,
         const var *B2_mults,
         const var *L_mults,
-        mnt4753_libsnark::groth16_params *params,
         mnt4753_libsnark::groth16_input *inputs,
         libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
 {
+    mnt4753_libsnark::groth16_params params(pk);
     mnt4753_libsnark::G1 *A_out = NULL, *C_out = NULL;
     mnt4753_libsnark::G2 *B_out = NULL;
     mnt4753_cuda_prove(
@@ -22,14 +22,14 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         &B_out,
         &C_out,
         primary_input_size,
-        params->d,
-        params->m,
+        params.d,
+        params.m,
         w,
         // A_mults,
         B1_mults,
         B2_mults,
         L_mults,
-        params,
+        &params,
         inputs);
 
     const libff::Fr<libff::mnt4753_pp> r = inputs->r;
@@ -103,10 +103,10 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         const var *B1_mults,
         const var *B2_mults,
         const var *L_mults,
-        mnt6753_libsnark::groth16_params *params,
         mnt6753_libsnark::groth16_input *inputs,
         libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk)
 {
+    mnt6753_libsnark::groth16_params params(pk);
     mnt6753_libsnark::G1 *A_out = NULL, *C_out = NULL;
     mnt6753_libsnark::G2 *B_out = NULL;
     mnt6753_cuda_prove(
@@ -114,14 +114,14 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         &B_out,
         &C_out,
         primary_input_size,
-        params->d,
-        params->m,
+        params.d,
+        params.m,
         w,
         // A_mults,
         B1_mults,
         B2_mults,
         L_mults,
-        params,
+        &params,
         inputs);
 
     const libff::Fr<libff::mnt6753_pp> r = inputs->r;

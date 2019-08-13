@@ -35,6 +35,8 @@ public:
     std::shared_ptr<std::vector<libff::G2<mnt4753_pp>>> B2;
 
     groth16_params(FILE *params, size_t dd, size_t mm);
+
+    groth16_params(libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk);
   };
 
   struct evaluation_domain {
@@ -152,6 +154,8 @@ public:
     std::shared_ptr<std::vector<libff::G2<mnt6753_pp>>> B2;
 
     groth16_params(FILE *params, size_t dd, size_t mm);
+
+    groth16_params(libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt6753_pp> *pk);
   };
 
   struct evaluation_domain {

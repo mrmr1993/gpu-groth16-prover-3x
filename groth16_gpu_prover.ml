@@ -86,7 +86,7 @@ module Mnt4753 = struct
     let stub =
       foreign "mnt4753_cuda_make_proof"
         ( size_t @-> ptr void @-> ptr void @-> ptr void
-        @-> ptr void @-> Params.typ @-> Inputs.typ
+        @-> ptr void @-> Inputs.typ
         @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
