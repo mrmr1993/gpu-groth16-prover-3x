@@ -72,11 +72,10 @@ void copy_fr_vec(void** output, std::vector<libff::Fr<ppT>> &f) {
 
 extern "C" {
 
-int cudaMalloc(void **, size_t);
-
-int cudaMemcpy(void *dst, void *src, size_t, int);
-
-int cudaMemcpyHostToDevice;
+void cuda_release_var_ptr(var *x) {
+    CudaFree a;
+    a(x);
+}
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         // const var *A_mults,
@@ -93,8 +92,8 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         &pk->constraint_system);
 
     size_t constexpr fr_raw_size = num_limbs * sizeof(mp_size_t);
-    var *w_ = (var *) malloc(fr_raw_size * (public_input->size() + auxiliary_input->size() + 1));
-    void *w_out = (void *) w_;
+    var *w = (var *) malloc(fr_raw_size * (public_input->size() + auxiliary_input->size() + 1));
+    void *w_out = (void *) w;
     copy_fr<libff::mnt4753_pp>(&w_out, libff::Fr<libff::mnt4753_pp>::one());
     copy_fr_vec<libff::mnt4753_pp>(&w_out, *public_input);
     copy_fr_vec<libff::mnt4753_pp>(&w_out, *auxiliary_input);
@@ -109,7 +108,7 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         pk->constraint_system.primary_input_size,
         params.d,
         params.m,
-        w_,
+        w,
         // A_mults,
         B1_mults,
         B2_mults,
@@ -117,7 +116,7 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         &params,
         &inputs);
 
-    free(w_);
+    free(w);
 
     const libff::Fr<libff::mnt4753_pp> r = inputs.r;
 

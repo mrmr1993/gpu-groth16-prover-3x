@@ -53,7 +53,7 @@ module Mnt4753 = struct
 
     let witness =
       foreign "mnt4753_get_input_witness"
-        (typ @-> returning Libsnark.Mnt4753.Field.Vector.typ )
+        (typ @-> returning Libsnark.Mnt4753.Field.Vector.typ)
   end
 
   module Preprocess = struct
@@ -72,59 +72,119 @@ module Mnt4753 = struct
     module G2 = Raw ()
 
     let a =
-      foreign "mnt4753_preprocess_A"
-        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
-        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+      let stub =
+        foreign "mnt4753_preprocess_A"
+          ( int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+          @-> returning Libsnark.Mnt4753.G1.Vector.typ )
+      in
+      fun c pk ->
+        let t = stub c pk in
+        Caml.Gc.finalise Libsnark.Mnt4753.G1.Vector.delete t ;
+        t
 
     let b1 =
-      foreign "mnt4753_preprocess_B1"
-        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
-        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+      let stub =
+        foreign "mnt4753_preprocess_B1"
+          ( int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+          @-> returning Libsnark.Mnt4753.G1.Vector.typ )
+      in
+      fun c pk ->
+        let t = stub c pk in
+        Caml.Gc.finalise Libsnark.Mnt4753.G1.Vector.delete t ;
+        t
 
     let b2 =
-      foreign "mnt4753_preprocess_B2"
-        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
-        @-> returning Libsnark.Mnt4753.G2.Vector.typ)
+      let stub =
+        foreign "mnt4753_preprocess_B2"
+          ( int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+          @-> returning Libsnark.Mnt4753.G2.Vector.typ )
+      in
+      fun c pk ->
+        let t = stub c pk in
+        Caml.Gc.finalise Libsnark.Mnt4753.G2.Vector.delete t ;
+        t
 
     let l =
-      foreign "mnt4753_preprocess_L"
-        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
-        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+      let stub =
+        foreign "mnt4753_preprocess_L"
+          ( int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+          @-> returning Libsnark.Mnt4753.G1.Vector.typ )
+      in
+      fun c pk ->
+        let t = stub c pk in
+        Caml.Gc.finalise Libsnark.Mnt4753.G1.Vector.delete t ;
+        t
 
     let h =
-      foreign "mnt4753_preprocess_H"
-        (int @-> Libsnark.Mnt4753.Default.Proving_key.typ
-        @-> returning Libsnark.Mnt4753.G1.Vector.typ)
+      let stub =
+        foreign "mnt4753_preprocess_H"
+          ( int @-> Libsnark.Mnt4753.Default.Proving_key.typ
+          @-> returning Libsnark.Mnt4753.G1.Vector.typ )
+      in
+      fun c pk ->
+        let t = stub c pk in
+        Caml.Gc.finalise Libsnark.Mnt4753.G1.Vector.delete t ;
+        t
 
     let reduce_g1_vector =
-      foreign "mnt4753_reduce_g1_vector"
-        (Libsnark.Mnt4753.G1.Vector.typ @-> returning G1.raw)
+      let stub =
+        foreign "mnt4753_reduce_g1_vector"
+          (Libsnark.Mnt4753.G1.Vector.typ @-> returning G1.raw)
+      in
+      let free = foreign "free" (G1.raw @-> returning void) in
+      fun x ->
+        let t = stub x in
+        Caml.Gc.finalise free t ; t
 
     let reduce_g2_vector =
-      foreign "mnt4753_reduce_g2_vector"
-        (Libsnark.Mnt4753.G2.Vector.typ @-> returning G2.raw)
-
+      let stub =
+        foreign "mnt4753_reduce_g2_vector"
+          (Libsnark.Mnt4753.G2.Vector.typ @-> returning G2.raw)
+      in
+      let free = foreign "free" (G2.raw @-> returning void) in
+      fun x ->
+        let t = stub x in
+        Caml.Gc.finalise free t ; t
   end
 
   let load_points_affine =
-    foreign "mnt4753_cuda_load_points_affine"
-      (size_t @-> CFile.typ @-> returning Preprocess.G1.raw)
+    let stub =
+      foreign "mnt4753_cuda_load_points_affine"
+        (size_t @-> CFile.typ @-> returning Preprocess.G1.raw)
+    in
+    let release =
+      foreign "cuda_release_var_ptr" (Preprocess.G1.raw @-> returning void)
+    in
+    fun size file ->
+      let t = stub size file in
+      Caml.Gc.finalise release t ; t
 
   let load_extension_points_affine =
-    foreign "mnt4753_cuda_load_extension_points_affine"
-      (size_t @-> CFile.typ @-> returning Preprocess.G2.raw)
+    let stub =
+      foreign "mnt4753_cuda_load_extension_points_affine"
+        (size_t @-> CFile.typ @-> returning Preprocess.G2.raw)
+    in
+    let release =
+      foreign "cuda_release_var_ptr" (Preprocess.G2.raw @-> returning void)
+    in
+    fun size file ->
+      let t = stub size file in
+      Caml.Gc.finalise release t ; t
 
   let make_groth16_proof =
     let stub =
       foreign "mnt4753_cuda_make_proof"
-        ( Preprocess.G1.raw @-> Preprocess.G2.raw
-        @-> Preprocess.G1.raw @-> Libsnark.Mnt4753.Field.Vector.typ
+        ( Preprocess.G1.raw @-> Preprocess.G2.raw @-> Preprocess.G1.raw
+        @-> Libsnark.Mnt4753.Field.Vector.typ
         @-> Libsnark.Mnt4753.Field.Vector.typ
         @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
     fun ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input pk ->
-      stub b1_mults b2_mults l_mults public_input auxiliary_input pk
+      let t = stub b1_mults b2_mults l_mults public_input auxiliary_input pk in
+      (* TODO: expose delete on Proof so that we don't leak memory. *)
+      (*Caml.Gc.finalise Libsnark.Mnt4753.Default.Proof.delete t;*)
+      t
 end
 
 module Mnt6753 = struct

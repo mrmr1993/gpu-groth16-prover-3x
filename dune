@@ -4,7 +4,8 @@
  (name test)
  (libraries groth16_gpu_prover snarky)
  (modes native)
- (modules test))
+ (modules test)
+ (preprocess (pps ppx_jane)))
 
 (library
  (name groth16_gpu_prover)
