@@ -264,7 +264,6 @@ std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_H(
 }
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
-        const var *w,
         // const var *A_mults,
         const var *B1_mults,
         const var *B2_mults,
@@ -277,6 +276,13 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         public_input,
         auxiliary_input,
         &pk->constraint_system);
+
+    size_t constexpr fr_raw_size = num_limbs * sizeof(mp_size_t);
+    var *w = (var *) malloc(fr_raw_size * (public_input->size() + auxiliary_input->size() + 1));
+    void *w_out = (void *) w;
+    copy_fr<libff::mnt6753_pp>(&w_out, libff::Fr<libff::mnt6753_pp>::one());
+    copy_fr_vec<libff::mnt6753_pp>(&w_out, *public_input);
+    copy_fr_vec<libff::mnt6753_pp>(&w_out, *auxiliary_input);
 
     mnt6753_libsnark::groth16_params params(pk);
     mnt6753_libsnark::G1 *A_out = NULL, *C_out = NULL;
@@ -295,6 +301,8 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt6753_pp> *mnt6753_cuda_make_proof(
         L_mults,
         &params,
         &inputs);
+
+    free(w);
 
     const libff::Fr<libff::mnt6753_pp> r = inputs.r;
 
@@ -355,8 +363,6 @@ var *mnt6753_load_scalars(const size_t m, const char *filename)
     return w_.release();
 }
 
-}
-
 const void *mnt6753_get_input_witness(mnt6753_libsnark::groth16_input *inputs)
 {
     return inputs->w.get();
@@ -400,6 +406,10 @@ std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_B1(
     for (size_t i = 0; i < pk->B_query.size(); i++) {
         B1.emplace_back(pk->B_query[i].h);
     }
+    /* Pad to the size of A_query. */
+    for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
+        B1.emplace_back(pk->B_query[i].h);
+    }
     generate_multiples<libff::G1<libff::mnt6753_pp>>(C, B1, ret);
     return ret;
 }
@@ -411,6 +421,10 @@ std::vector<libff::G2<libff::mnt6753_pp>> *mnt6753_preprocess_B2(
     std::vector<libff::G2<libff::mnt6753_pp>> *ret = new std::vector<libff::G2<libff::mnt6753_pp>>();
     std::vector<libff::G2<libff::mnt6753_pp>> B2;
     for (size_t i = 0; i < pk->B_query.size(); i++) {
+        B2.emplace_back(pk->B_query[i].g);
+    }
+    /* Pad to the size of A_query. */
+    for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
         B2.emplace_back(pk->B_query[i].g);
     }
     generate_multiples<libff::G2<libff::mnt6753_pp>>(C, B2, ret);
@@ -433,4 +447,6 @@ std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_H(
     std::vector<libff::G1<libff::mnt6753_pp>> *ret = new std::vector<libff::G1<libff::mnt6753_pp>>();
     generate_multiples<libff::G1<libff::mnt6753_pp>>(C, pk->H_query, ret);
     return ret;
+}
+
 }
