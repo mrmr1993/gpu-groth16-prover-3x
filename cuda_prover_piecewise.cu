@@ -171,6 +171,21 @@ void prove_aux(
     print_time(t, "cpu 2");
 }
 
+template< typename EC >
+var_ptr copy_points_affine(size_t n, const void *src)
+{
+    typedef typename EC::field_type FF;
+
+    static constexpr size_t coord_bytes = FF::DEGREE * ELT_BYTES;
+    static constexpr size_t aff_pt_bytes = 2 * coord_bytes;
+
+    size_t total_aff_bytes = n * aff_pt_bytes;
+
+    auto mem = allocate_memory(total_aff_bytes);
+    memcpy((void *)mem.get(), (void *) src, total_aff_bytes);
+    return mem;
+}
+
 template <const int R, const int C, typename B>
 void prove(
         typename B::G1 **A_out,
@@ -192,12 +207,16 @@ void prove(
     size_t space = ((m + 1) + R - 1) / R;
 
     //auto out_A = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+    // auto A_mults_dev = copy_points_affine<ec_type<mnt4753_libsnark>::ECp>(((1U << C) - 1)*(m + 1), (void *) A_mults);
 
     auto out_B1 = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+    auto B1_mults_dev = copy_points_affine<ec_type<mnt4753_libsnark>::ECp>(((1U << C) - 1)*(m + 1), (void *) B1_mults);
 
     auto out_B2 = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+    auto B2_mults_dev = copy_points_affine<ec_type<mnt4753_libsnark>::ECpe>(((1U << C) - 1)*(m + 1), (void *) B2_mults);
 
     auto out_L = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
+    auto L_mults_dev = copy_points_affine<ec_type<mnt4753_libsnark>::ECp>(((1U << C) - 1)*(m - 1), (void *) L_mults);
 
     cudaStream_t //sA,
                  sB1, sB2, sL;
@@ -217,13 +236,13 @@ void prove(
         m,
         w,
         now(),
-        // A_mults,
+        // A_mults_dev.get(),
         // out_A.get(),
-        B1_mults,
+        B1_mults_dev.get(),
         out_B1.get(),
-        B2_mults,
+        B2_mults_dev.get(),
         out_B2.get(),
-        L_mults,
+        L_mults_dev.get(),
         out_L.get(),
         params,
         inputs,

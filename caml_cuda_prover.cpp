@@ -13,7 +13,7 @@ void copy_fqe(void** output, libff::Fqe<ppT> x) {
   std::vector<Fq<ppT>> v = x.all_base_field_elements();
   size_t deg = Fqe<ppT>::extension_degree();
   for (size_t i = 0; i < deg; ++i) {
-    copy_fq(output, v[i]);
+    copy_fq<ppT>(output, v[i]);
   }
 }
 
@@ -43,7 +43,27 @@ void copy_g2(void** output, libff::G2<ppT> g) {
   copy_fqe<ppT>(output, g.Y());
 }
 
+template<typename ppT>
+void copy_g1_vec(void** output, std::vector<libff::G1<ppT>> &g) {
+    for (size_t i = 0; i < g.size(); ++i) {
+        copy_g1<ppT>(output, g[i]);
+    }
+}
+
+template<typename ppT>
+void copy_g2_vec(void** output, std::vector<libff::G2<ppT>> &g) {
+    for (size_t i = 0; i < g.size(); ++i) {
+        copy_g2<ppT>(output, g[i]);
+    }
+}
+
 extern "C" {
+
+int cudaMalloc(void **, size_t);
+
+int cudaMemcpy(void *dst, void *src, size_t, int);
+
+int cudaMemcpyHostToDevice;
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         const var *w,
@@ -142,6 +162,26 @@ const void *mnt4753_get_input_witness(mnt4753_libsnark::groth16_input *inputs)
     return inputs->w.get();
 }
 
+var *mnt4753_reduce_g1_vector(
+    std::vector<libff::G1<libff::mnt4753_pp>> *vec)
+{
+    size_t constexpr g1_raw_size = num_limbs * sizeof(mp_size_t) * 2;
+    void *ret = (var *) malloc(g1_raw_size * vec->size());
+    void *ret_write = ret;
+    copy_g1_vec<libff::mnt4753_pp>(&ret_write, *vec);
+    return (var *)ret;
+}
+
+var *mnt4753_reduce_g2_vector(
+    std::vector<libff::G2<libff::mnt4753_pp>> *vec)
+{
+    size_t constexpr g2_raw_size = num_limbs * sizeof(mp_size_t) * 2;
+    void *ret = (void *) malloc(g2_raw_size * vec->size() * Fqe<libff::mnt4753_pp>::extension_degree());
+    void *ret_write = ret;
+    copy_g2_vec<libff::mnt4753_pp>(&ret_write, *vec);
+    return (var *)ret;
+}
+
 std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_A(
     int C,
     libsnark::r1cs_gg_ppzksnark_proving_key<libff::mnt4753_pp> *pk)
@@ -162,7 +202,7 @@ std::vector<libff::G1<libff::mnt4753_pp>> *mnt4753_preprocess_B1(
     }
     /* Pad to the size of A_query. */
     for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
-        B1.emplace_back(libff::G1<libff::mnt4753_pp>::zero());
+        B1.emplace_back(pk->B_query[i].h);
     }
     generate_multiples<libff::G1<libff::mnt4753_pp>>(C, B1, ret);
     return ret;
@@ -179,7 +219,7 @@ std::vector<libff::G2<libff::mnt4753_pp>> *mnt4753_preprocess_B2(
     }
     /* Pad to the size of A_query. */
     for (size_t i = pk->B_query.size(); i < pk->A_query.size(); i++) {
-        B2.emplace_back(libff::G2<libff::mnt4753_pp>::zero());
+        B2.emplace_back(pk->B_query[i].g);
     }
     generate_multiples<libff::G2<libff::mnt4753_pp>>(C, B2, ret);
     return ret;
@@ -300,6 +340,26 @@ var *mnt6753_load_scalars(const size_t m, const char *filename)
 const void *mnt6753_get_input_witness(mnt6753_libsnark::groth16_input *inputs)
 {
     return inputs->w.get();
+}
+
+var *mnt6753_reduce_g1_vector(
+    std::vector<libff::G1<libff::mnt6753_pp>> *vec)
+{
+    size_t constexpr g1_raw_size = num_limbs * sizeof(mp_size_t) * 2;
+    void *ret = (var *) malloc(g1_raw_size * vec->size());
+    void *ret_write = ret;
+    copy_g1_vec<libff::mnt6753_pp>(&ret_write, *vec);
+    return (var *)ret;
+}
+
+var *mnt6753_reduce_g2_vector(
+    std::vector<libff::G2<libff::mnt6753_pp>> *vec)
+{
+    size_t constexpr g2_raw_size = num_limbs * sizeof(mp_size_t) * 2;
+    void *ret = (void *) malloc(g2_raw_size * vec->size() * Fqe<libff::mnt6753_pp>::extension_degree());
+    void *ret_write = ret;
+    copy_g2_vec<libff::mnt6753_pp>(&ret_write, *vec);
+    return (var *)ret;
 }
 
 std::vector<libff::G1<libff::mnt6753_pp>> *mnt6753_preprocess_A(

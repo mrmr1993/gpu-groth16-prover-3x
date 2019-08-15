@@ -8,22 +8,19 @@ let () =
   let m = Params.m params in
   let d = Params.d params in
   let inputs = Inputs.load ~d ~m "MNT4753-input" in
-  let c_exp = Unsigned.Size_t.(sub (shift_left one c) one) in
   let preprocessed_file =
     Groth16_gpu_prover.CFile.create "MNT4753_preprocessed" "r"
   in
-  let c_exp_mul_m1 = Unsigned.Size_t.(mul c_exp (add m one)) in
-  let b1_mults = load_points_affine c_exp_mul_m1 preprocessed_file in
-  let b2_mults = load_extension_points_affine c_exp_mul_m1 preprocessed_file in
-  let l_mults =
-    load_points_affine
-      Unsigned.Size_t.(mul c_exp (sub m one))
-      preprocessed_file
-  in
-  let w = load_scalars Unsigned.Size_t.(add m one) "MNT4753-input" in
-  Groth16_gpu_prover.CFile.destroy preprocessed_file ;
   let pkstring = Core_kernel.In_channel.read_all "proving-key.debug" in
   let proving_key = Snarky.Libsnark.Mnt4753.Default.Proving_key.of_string pkstring in
+  let b1_mults_vec = Preprocess.b1 c proving_key in
+  let b1_mults = Preprocess.reduce_g1_vector b1_mults_vec in
+  let b2_mults_vec = Preprocess.b2 c proving_key in
+  let b2_mults = Preprocess.reduce_g2_vector b2_mults_vec in
+  let l_mults_vec = Preprocess.l c proving_key in
+  let l_mults = Preprocess.reduce_g1_vector l_mults_vec in
+  let w = load_scalars Unsigned.Size_t.(add m one) "MNT4753-input" in
+  Groth16_gpu_prover.CFile.destroy preprocessed_file ;
   let witness = Inputs.witness inputs in
   let public_input =
     let open Snarky.Libsnark.Mnt4753.Field.Vector in
