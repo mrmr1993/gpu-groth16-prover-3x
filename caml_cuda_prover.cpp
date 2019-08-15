@@ -9,6 +9,12 @@ void copy_fq(void** output, libff::Fq<ppT> x) {
 }
 
 template<typename ppT>
+void copy_fr(void** output, Fr<ppT> x) {
+  std::memcpy(*output, (void *) x.mont_repr.data, num_limbs * sizeof(mp_size_t));
+  *output += num_limbs * sizeof(mp_size_t);
+}
+
+template<typename ppT>
 void copy_fqe(void** output, libff::Fqe<ppT> x) {
   std::vector<Fq<ppT>> v = x.all_base_field_elements();
   size_t deg = Fqe<ppT>::extension_degree();
@@ -57,6 +63,13 @@ void copy_g2_vec(void** output, std::vector<libff::G2<ppT>> &g) {
     }
 }
 
+template<typename ppT>
+void copy_fr_vec(void** output, std::vector<libff::Fr<ppT>> &f) {
+    for (size_t i = 0; i < f.size(); ++i) {
+        copy_fr<ppT>(output, f[i]);
+    }
+}
+
 extern "C" {
 
 int cudaMalloc(void **, size_t);
@@ -66,7 +79,6 @@ int cudaMemcpy(void *dst, void *src, size_t, int);
 int cudaMemcpyHostToDevice;
 
 libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
-        const var *w,
         // const var *A_mults,
         const var *B1_mults,
         const var *B2_mults,
@@ -80,6 +92,13 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         auxiliary_input,
         &pk->constraint_system);
 
+    size_t constexpr fr_raw_size = num_limbs * sizeof(mp_size_t);
+    var *w_ = (var *) malloc(fr_raw_size * (public_input->size() + auxiliary_input->size() + 1));
+    void *w_out = (void *) w_;
+    copy_fr<libff::mnt4753_pp>(&w_out, libff::Fr<libff::mnt4753_pp>::one());
+    copy_fr_vec<libff::mnt4753_pp>(&w_out, *public_input);
+    copy_fr_vec<libff::mnt4753_pp>(&w_out, *auxiliary_input);
+
     mnt4753_libsnark::groth16_params params(pk);
     mnt4753_libsnark::G1 *A_out = NULL, *C_out = NULL;
     mnt4753_libsnark::G2 *B_out = NULL;
@@ -90,13 +109,15 @@ libsnark::r1cs_gg_ppzksnark_proof<libff::mnt4753_pp> *mnt4753_cuda_make_proof(
         pk->constraint_system.primary_input_size,
         params.d,
         params.m,
-        w,
+        w_,
         // A_mults,
         B1_mults,
         B2_mults,
         L_mults,
         &params,
         &inputs);
+
+    free(w_);
 
     const libff::Fr<libff::mnt4753_pp> r = inputs.r;
 

@@ -19,7 +19,6 @@ let () =
   let b2_mults = Preprocess.reduce_g2_vector b2_mults_vec in
   let l_mults_vec = Preprocess.l c proving_key in
   let l_mults = Preprocess.reduce_g1_vector l_mults_vec in
-  let w = load_scalars Unsigned.Size_t.(add m one) "MNT4753-input" in
   Groth16_gpu_prover.CFile.destroy preprocessed_file ;
   let witness = Inputs.witness inputs in
   let public_input =
@@ -37,7 +36,7 @@ let () =
     v
   in
   let proof =
-    Groth16_gpu_prover.Mnt4753.make_groth16_proof ~w
+    Groth16_gpu_prover.Mnt4753.make_groth16_proof
       ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input proving_key
   in
   let keystring = Core_kernel.In_channel.read_all "verification-key.debug" in

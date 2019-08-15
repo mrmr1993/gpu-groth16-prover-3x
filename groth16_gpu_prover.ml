@@ -117,14 +117,14 @@ module Mnt4753 = struct
   let make_groth16_proof =
     let stub =
       foreign "mnt4753_cuda_make_proof"
-        ( ptr void @-> Preprocess.G1.raw @-> Preprocess.G2.raw
+        ( Preprocess.G1.raw @-> Preprocess.G2.raw
         @-> Preprocess.G1.raw @-> Libsnark.Mnt4753.Field.Vector.typ
         @-> Libsnark.Mnt4753.Field.Vector.typ
         @-> Libsnark.Mnt4753.Default.Proving_key.typ
         @-> returning Libsnark.Mnt4753.Default.Proof.typ )
     in
-    fun ~w ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input pk ->
-      stub w b1_mults b2_mults l_mults public_input auxiliary_input pk
+    fun ~b1_mults ~b2_mults ~l_mults ~public_input ~auxiliary_input pk ->
+      stub b1_mults b2_mults l_mults public_input auxiliary_input pk
 end
 
 module Mnt6753 = struct

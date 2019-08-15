@@ -182,7 +182,18 @@ var_ptr copy_points_affine(size_t n, const void *src)
     size_t total_aff_bytes = n * aff_pt_bytes;
 
     auto mem = allocate_memory(total_aff_bytes);
-    memcpy((void *)mem.get(), (void *) src, total_aff_bytes);
+    memcpy((void *)mem.get(), src, total_aff_bytes);
+    return mem;
+}
+
+var_ptr copy_field_elts(size_t n, const void *src)
+{
+    static constexpr size_t field_elt_size = ELT_BYTES;
+
+    size_t total_size = n * field_elt_size;
+
+    auto mem = allocate_memory(total_size);
+    memcpy((void *)mem.get(), src, total_size);
     return mem;
 }
 
@@ -218,6 +229,8 @@ void prove(
     auto out_L = allocate_memory(space * ECpe::NELTS * ELT_BYTES);
     auto L_mults_dev = copy_points_affine<ec_type<mnt4753_libsnark>::ECp>(((1U << C) - 1)*(m - 1), (void *) L_mults);
 
+    auto w_dev = copy_field_elts(m + 1, (void *) w);
+
     cudaStream_t //sA,
                  sB1, sB2, sL;
 
@@ -234,7 +247,7 @@ void prove(
         primary_input_size,
         d,
         m,
-        w,
+        w_dev.get(),
         now(),
         // A_mults_dev.get(),
         // out_A.get(),
